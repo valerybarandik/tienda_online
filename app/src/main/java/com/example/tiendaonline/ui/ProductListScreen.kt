@@ -1,12 +1,14 @@
 package com.example.tiendaonline.ui
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
@@ -14,6 +16,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -22,22 +25,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tiendaonline.R
 import com.example.tiendaonline.ui.theme.White
-
-data class Product(val name: String, val price: Double, @DrawableRes val imageRes: Int)
+import com.example.tiendaonline.ui.viewmodel.ProductViewModel
+import com.example.tiendaonline.ui.viewmodel.CartViewModel
+import com.example.tiendaonline.ui.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductListScreen(navController: NavController) {
-    val products = listOf(
-        Product("Producto 1", 10.0, R.drawable.ic_launcher_background),
-        Product("Producto 2", 20.0, R.drawable.ic_launcher_background),
-        Product("Producto 3", 30.0, R.drawable.ic_launcher_background),
-        Product("Producto 4", 40.0, R.drawable.ic_launcher_background),
-        Product("Producto 5", 50.0, R.drawable.ic_launcher_background)
-    )
+fun ProductListScreen(
+    navController: NavController,
+    userId: Long,
+    productViewModel: ProductViewModel = viewModel(),
+    cartViewModel: CartViewModel = viewModel(),
+    authViewModel: AuthViewModel = viewModel()
+) {
+    // Configurar el usuario actual en el CartViewModel
+    LaunchedEffect(userId) {
+        cartViewModel.setCurrentUser(userId)
+    }
+
+    // Observar productos desde la base de datos
+    val products by productViewModel.products.collectAsState()
+
+    // Observar el conteo del carrito
+    val cartItemCount by cartViewModel.cartItemCount.collectAsState()
 
     var showMenu by remember { mutableStateOf(false) }
 
@@ -46,6 +60,24 @@ fun ProductListScreen(navController: NavController) {
             TitleTopAppBar(
                 title = "Productos",
                 actions = {
+                    // Icono del carrito con badge
+                    IconButton(onClick = { navController.navigate("shoppingCart/$userId") }) {
+                        BadgedBox(
+                            badge = {
+                                if (cartItemCount > 0) {
+                                    Badge { Text(cartItemCount.toString()) }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Carrito",
+                                tint = White
+                            )
+                        }
+                    }
+
+                    // Menú de usuario
                     IconButton(onClick = { showMenu = !showMenu }) {
                         Icon(
                             imageVector = Icons.Default.Person,
@@ -60,6 +92,7 @@ fun ProductListScreen(navController: NavController) {
                         DropdownMenuItem(
                             text = { Text("Cerrar sesión") },
                             onClick = {
+                                authViewModel.logout()
                                 navController.navigate("login") {
                                     popUpTo("login") { inclusive = true }
                                 }
@@ -70,38 +103,46 @@ fun ProductListScreen(navController: NavController) {
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-        ) {
+        if (products.isEmpty()) {
+            // Mostrar mensaje si no hay productos
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No hay productos disponibles")
+            }
+        } else {
             LazyColumn(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(products) { product ->
-                    ProductCard(product = product)
+                    ProductCard(
+                        product = product,
+                        onAddToCart = {
+                            cartViewModel.addToCart(product.id)
+                        }
+                    )
                 }
-            }
-            Button(
-                onClick = { navController.navigate("shoppingCart") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text("Ver Carrito")
             }
         }
     }
 }
 
 @Composable
-fun ProductCard(product: Product) {
+fun ProductCard(
+    product: com.example.tiendaonline.data.entity.Product,
+    onAddToCart: () -> Unit
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column {
             Image(
-                painter = painterResource(id = product.imageRes),
+                painter = painterResource(id = R.drawable.ic_launcher_background),
                 contentDescription = product.name,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -109,13 +150,37 @@ fun ProductCard(product: Product) {
                 contentScale = ContentScale.Crop
             )
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = product.name)
-                Text(text = "$${product.price}")
-                Button(
-                    onClick = { /* Add to cart */ },
-                    modifier = Modifier.align(Alignment.End)
+                Text(
+                    text = product.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                if (product.description.isNotEmpty()) {
+                    Text(
+                        text = product.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
+                Text(
+                    text = "$${String.format("%.2f", product.price)}",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Agregar al carrito")
+                    Text(
+                        text = "Stock: ${product.stock}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Button(
+                        onClick = onAddToCart,
+                        enabled = product.stock > 0 && product.isAvailable
+                    ) {
+                        Text("Agregar al carrito")
+                    }
                 }
             }
         }

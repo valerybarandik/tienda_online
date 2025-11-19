@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.tiendaonline.ui.viewmodel.AuthViewModel
 import com.example.tiendaonline.ui.viewmodel.CartViewModel
+import com.example.tiendaonline.ui.viewmodel.LocationViewModel
 import com.example.tiendaonline.ui.viewmodel.ProductViewModel
 
 @Composable
@@ -19,6 +20,7 @@ fun AppNavigation() {
     val authViewModel: AuthViewModel = viewModel()
     val productViewModel: ProductViewModel = viewModel()
     val cartViewModel: CartViewModel = viewModel()
+    val locationViewModel: LocationViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "login") {
         // Pantalla de login
@@ -62,6 +64,14 @@ fun AppNavigation() {
                 navController = navController,
                 userId = userId,
                 cartViewModel = cartViewModel
+            )
+        }
+
+        // Pantalla de geolocalización
+        composable("location") {
+            LocationScreen(
+                onNavigateBack = { navController.popBackStack() },
+                locationViewModel = locationViewModel
             )
         }
     }

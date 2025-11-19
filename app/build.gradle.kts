@@ -59,6 +59,12 @@ dependencies {
     // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
+    // Google Play Services - Location
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
+    // Accompanist Permissions (para manejo de permisos en Compose)
+    implementation("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

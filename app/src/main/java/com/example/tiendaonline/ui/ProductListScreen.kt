@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Badge
@@ -60,6 +61,15 @@ fun ProductListScreen(
             TitleTopAppBar(
                 title = "Productos",
                 actions = {
+                    // Icono de geolocalización
+                    IconButton(onClick = { navController.navigate("location") }) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "Ubicación",
+                            tint = White
+                        )
+                    }
+
                     // Icono del carrito con badge
                     IconButton(onClick = { navController.navigate("shoppingCart/$userId") }) {
                         BadgedBox(

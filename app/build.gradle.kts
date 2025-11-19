@@ -65,6 +65,9 @@ dependencies {
     // Accompanist Permissions (para manejo de permisos en Compose)
     implementation("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
 
+    // Coil para carga de imágenes
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

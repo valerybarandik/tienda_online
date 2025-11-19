@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
         User::class,
         CartItem::class
     ],
-    version = 1,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -49,6 +49,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "tienda_online_database"
                 )
+                    .fallbackToDestructiveMigration()
                     .addCallback(DatabaseCallback())
                     .build()
                 INSTANCE = instance
@@ -62,6 +63,15 @@ abstract class AppDatabase : RoomDatabase() {
         private class DatabaseCallback : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
+                INSTANCE?.let { database ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        populateDatabase(database)
+                    }
+                }
+            }
+
+            override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                super.onDestructiveMigration(db)
                 INSTANCE?.let { database ->
                     CoroutineScope(Dispatchers.IO).launch {
                         populateDatabase(database)
@@ -84,7 +94,7 @@ abstract class AppDatabase : RoomDatabase() {
                     price = 1299.99,
                     category = "Electrónica",
                     stock = 10,
-                    imageUrl = "laptop_gaming",
+                    imageUrl = "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800",
                     isAvailable = true
                 ),
                 Product(
@@ -93,7 +103,7 @@ abstract class AppDatabase : RoomDatabase() {
                     price = 29.99,
                     category = "Accesorios",
                     stock = 50,
-                    imageUrl = "mouse",
+                    imageUrl = "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800",
                     isAvailable = true
                 ),
                 Product(
@@ -102,7 +112,7 @@ abstract class AppDatabase : RoomDatabase() {
                     price = 89.99,
                     category = "Accesorios",
                     stock = 30,
-                    imageUrl = "keyboard",
+                    imageUrl = "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800",
                     isAvailable = true
                 ),
                 Product(
@@ -111,7 +121,7 @@ abstract class AppDatabase : RoomDatabase() {
                     price = 399.99,
                     category = "Electrónica",
                     stock = 15,
-                    imageUrl = "monitor",
+                    imageUrl = "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800",
                     isAvailable = true
                 ),
                 Product(
@@ -120,7 +130,7 @@ abstract class AppDatabase : RoomDatabase() {
                     price = 149.99,
                     category = "Audio",
                     stock = 25,
-                    imageUrl = "headphones",
+                    imageUrl = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800",
                     isAvailable = true
                 ),
                 Product(
@@ -129,7 +139,7 @@ abstract class AppDatabase : RoomDatabase() {
                     price = 59.99,
                     category = "Accesorios",
                     stock = 40,
-                    imageUrl = "webcam",
+                    imageUrl = "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800",
                     isAvailable = true
                 ),
                 Product(
@@ -138,7 +148,7 @@ abstract class AppDatabase : RoomDatabase() {
                     price = 119.99,
                     category = "Almacenamiento",
                     stock = 20,
-                    imageUrl = "ssd",
+                    imageUrl = "https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=800",
                     isAvailable = true
                 ),
                 Product(
@@ -147,7 +157,70 @@ abstract class AppDatabase : RoomDatabase() {
                     price = 179.99,
                     category = "Redes",
                     stock = 12,
-                    imageUrl = "router",
+                    imageUrl = "https://images.unsplash.com/photo-1606904825846-647eb07f5be2?w=800",
+                    isAvailable = true
+                ),
+                Product(
+                    name = "Smartphone 5G",
+                    description = "Smartphone de última generación con 5G y cámara de 108MP",
+                    price = 899.99,
+                    category = "Electrónica",
+                    stock = 18,
+                    imageUrl = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800",
+                    isAvailable = true
+                ),
+                Product(
+                    name = "Tablet 10 pulgadas",
+                    description = "Tablet Android con pantalla OLED y stylus incluido",
+                    price = 449.99,
+                    category = "Electrónica",
+                    stock = 22,
+                    imageUrl = "https://images.unsplash.com/photo-1561154464-82e9adf32764?w=800",
+                    isAvailable = true
+                ),
+                Product(
+                    name = "Smartwatch Pro",
+                    description = "Reloj inteligente con monitor de salud y GPS",
+                    price = 299.99,
+                    category = "Accesorios",
+                    stock = 35,
+                    imageUrl = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800",
+                    isAvailable = true
+                ),
+                Product(
+                    name = "Impresora Multifuncional",
+                    description = "Impresora WiFi con escáner y copiadora integrada",
+                    price = 199.99,
+                    category = "Oficina",
+                    stock = 14,
+                    imageUrl = "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=800",
+                    isAvailable = true
+                ),
+                Product(
+                    name = "Altavoz Bluetooth",
+                    description = "Altavoz portátil resistente al agua con 20h de batería",
+                    price = 79.99,
+                    category = "Audio",
+                    stock = 45,
+                    imageUrl = "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=800",
+                    isAvailable = true
+                ),
+                Product(
+                    name = "Power Bank 20000mAh",
+                    description = "Batería portátil de alta capacidad con carga rápida",
+                    price = 49.99,
+                    category = "Accesorios",
+                    stock = 55,
+                    imageUrl = "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=800",
+                    isAvailable = true
+                ),
+                Product(
+                    name = "Micrófono USB",
+                    description = "Micrófono de condensador profesional para streaming",
+                    price = 129.99,
+                    category = "Audio",
+                    stock = 28,
+                    imageUrl = "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800",
                     isAvailable = true
                 )
             )

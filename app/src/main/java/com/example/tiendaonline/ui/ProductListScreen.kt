@@ -1,6 +1,5 @@
 package com.example.tiendaonline.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,10 +23,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.tiendaonline.R
 import com.example.tiendaonline.ui.theme.White
 import com.example.tiendaonline.ui.viewmodel.ProductViewModel
@@ -151,8 +150,8 @@ fun ProductCard(
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+            AsyncImage(
+                model = product.imageUrl,
                 contentDescription = product.name,
                 modifier = Modifier
                     .fillMaxWidth()

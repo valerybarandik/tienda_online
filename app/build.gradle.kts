@@ -30,8 +30,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Configuración de firma (se puede agregar más adelante)
-            // Para desarrollo, se puede usar la firma de debug
+            // Usar firma de debug para desarrollo (no para producción en Play Store)
+            signingConfig = signingConfigs.getByName("debug")
         }
         debug {
             // Configuración de debug (sin optimizaciones)

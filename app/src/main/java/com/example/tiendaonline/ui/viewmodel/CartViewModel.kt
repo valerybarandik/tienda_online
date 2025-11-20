@@ -37,6 +37,10 @@ class CartViewModel(application: Application) : AndroidViewModel(application) {
     private val _cartTotal = MutableStateFlow(0.0)
     val cartTotal: StateFlow<Double> = _cartTotal.asStateFlow()
 
+    // Mensaje de error
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
     init {
         val cartItemDao = AppDatabase.getDatabase(application).cartItemDao()
         repository = CartRepository(cartItemDao)
@@ -85,9 +89,9 @@ class CartViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 repository.addToCart(userId, productId, quantity)
+                _errorMessage.value = null
             } catch (e: Exception) {
-                // Manejar error
-                e.printStackTrace()
+                _errorMessage.value = "Error al agregar producto al carrito: ${e.message}"
             }
         }
     }
@@ -99,9 +103,9 @@ class CartViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 repository.updateQuantity(cartItemId, newQuantity)
+                _errorMessage.value = null
             } catch (e: Exception) {
-                // Manejar error
-                e.printStackTrace()
+                _errorMessage.value = "Error al actualizar cantidad: ${e.message}"
             }
         }
     }
@@ -137,9 +141,9 @@ class CartViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 repository.removeFromCart(cartItem)
+                _errorMessage.value = null
             } catch (e: Exception) {
-                // Manejar error
-                e.printStackTrace()
+                _errorMessage.value = "Error al eliminar producto del carrito: ${e.message}"
             }
         }
     }
@@ -153,9 +157,9 @@ class CartViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 repository.removeFromCartByIds(userId, productId)
+                _errorMessage.value = null
             } catch (e: Exception) {
-                // Manejar error
-                e.printStackTrace()
+                _errorMessage.value = "Error al eliminar producto del carrito: ${e.message}"
             }
         }
     }
@@ -169,10 +173,17 @@ class CartViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 repository.clearCart(userId)
+                _errorMessage.value = null
             } catch (e: Exception) {
-                // Manejar error
-                e.printStackTrace()
+                _errorMessage.value = "Error al vaciar el carrito: ${e.message}"
             }
         }
+    }
+
+    /**
+     * Limpia el mensaje de error.
+     */
+    fun clearError() {
+        _errorMessage.value = null
     }
 }

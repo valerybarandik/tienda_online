@@ -21,11 +21,22 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Habilitar minificación y optimización de código
+            isMinifyEnabled = true
+            // Reducir el tamaño del APK removiendo recursos no utilizados
+            isShrinkResources = true
+            // Archivos de configuración de ProGuard
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Configuración de firma (se puede agregar más adelante)
+            // Para desarrollo, se puede usar la firma de debug
+        }
+        debug {
+            // Configuración de debug (sin optimizaciones)
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
     compileOptions {

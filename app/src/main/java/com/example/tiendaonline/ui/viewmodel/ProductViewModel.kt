@@ -27,6 +27,10 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
+    // StateFlow para errores
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
     init {
         val productDao = AppDatabase.getDatabase(application).productDao()
         repository = ProductRepository(productDao)
@@ -69,7 +73,12 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
      */
     fun insertProduct(product: Product) {
         viewModelScope.launch {
-            repository.insertProduct(product)
+            try {
+                repository.insertProduct(product)
+                _errorMessage.value = null
+            } catch (e: Exception) {
+                _errorMessage.value = "Error al insertar producto: ${e.message}"
+            }
         }
     }
 
@@ -78,7 +87,12 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
      */
     fun updateProduct(product: Product) {
         viewModelScope.launch {
-            repository.updateProduct(product)
+            try {
+                repository.updateProduct(product)
+                _errorMessage.value = null
+            } catch (e: Exception) {
+                _errorMessage.value = "Error al actualizar producto: ${e.message}"
+            }
         }
     }
 
@@ -87,7 +101,12 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
      */
     fun deleteProduct(product: Product) {
         viewModelScope.launch {
-            repository.deleteProduct(product)
+            try {
+                repository.deleteProduct(product)
+                _errorMessage.value = null
+            } catch (e: Exception) {
+                _errorMessage.value = "Error al eliminar producto: ${e.message}"
+            }
         }
     }
 
@@ -96,7 +115,19 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
      */
     fun updateStock(productId: Long, newStock: Int) {
         viewModelScope.launch {
-            repository.updateStock(productId, newStock)
+            try {
+                repository.updateStock(productId, newStock)
+                _errorMessage.value = null
+            } catch (e: Exception) {
+                _errorMessage.value = "Error al actualizar stock: ${e.message}"
+            }
         }
+    }
+
+    /**
+     * Limpia el mensaje de error.
+     */
+    fun clearError() {
+        _errorMessage.value = null
     }
 }
